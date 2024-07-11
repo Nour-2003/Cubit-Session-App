@@ -30,6 +30,7 @@ class HomeScreen extends StatelessWidget {
           child:CircularProgressIndicator(),
             ),
             builder: (context)=>ListView.builder(
+              physics: BouncingScrollPhysics(),
               itemCount: items.length,
               itemBuilder: (context, index) {
                 return Dismissible(
