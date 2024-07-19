@@ -50,6 +50,8 @@ class AppCubit extends Cubit<AppStates> {
     database?.rawQuery('SELECT * FROM tasks').then((value){
       items = value;
       emit(GetDataState());
+    }).catchError((error){
+      print('Error getting data: $error');
     });
   }
 
