@@ -12,10 +12,6 @@ import '../Widgets/dialog widget.dart';
 
 class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
-    return BlocConsumer<AppCubit,AppStates>(
-      listener: (BuildContext context, AppStates state) {  },
-      builder: (BuildContext context, AppStates state) {
-        var items = AppCubit.get(context).items;
         return Scaffold(
           appBar: AppBar(
             backgroundColor: Colors.indigo,
@@ -24,12 +20,32 @@ class HomeScreen extends StatelessWidget {
                 color: Colors.white
             ),),
           ),
-          body: ConditionalBuilder(
-            condition: items.length > 0,
-            fallback: (context)=>Center(
-          child:CircularProgressIndicator(),
+          body: BlocConsumer<AppCubit,AppStates>(
+    listener: (BuildContext context, AppStates state) {
+      if (state is DeleteTaskState) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(
+              "Task is Deleted",
+            )));
+      } else if (state is InsertToDatabaseState) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(
+              "Task is Inserted",
+            )));
+      }
+    },
+    builder: (BuildContext context, AppStates state) {
+      var items = AppCubit
+          .get(context)
+          .items;
+      return ConditionalBuilder(
+        condition: items.length > 0,
+        fallback: (context) =>
+            Center(
+              child: CircularProgressIndicator(),
             ),
-            builder: (context)=>ListView.builder(
+        builder: (context) =>
+            ListView.builder(
               physics: BouncingScrollPhysics(),
               itemCount: items.length,
               itemBuilder: (context, index) {
@@ -37,25 +53,28 @@ class HomeScreen extends StatelessWidget {
                   key: Key(items[index]['id'].toString()),
                   direction: DismissDirection.horizontal,
                   onDismissed: (direction) {
-                    AppCubit.get(context).deleteFromDatabase(items[index]['id']);
+                    AppCubit.get(context).deleteFromDatabase(
+                        items[index]['id']);
                   },
                   child: Card(
                     elevation: 20,
                     color: Colors.indigo,
                     child: ListTile(
-                      title: Text(items[index]['title'],style: TextStyle(
+                      title: Text(items[index]['title'], style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontSize: 20,
                       ),),
-                      subtitle: Text(items[index]['description'],style: TextStyle(
-                        color: Colors.white,
+                      subtitle: Text(items[index]['description'],
+                        style: TextStyle(
+                          color: Colors.white,
 
-                      ),),
+                        ),),
                       trailing: IconButton(
-                        icon: Icon(Icons.delete,color: Colors.white,),
+                        icon: Icon(Icons.delete, color: Colors.white,),
                         onPressed: () {
-                          AppCubit.get(context).deleteFromDatabase(items[index]['id']);
+                          AppCubit.get(context).deleteFromDatabase(
+                              items[index]['id']);
                         },
                       ),
                     ),
@@ -63,6 +82,8 @@ class HomeScreen extends StatelessWidget {
                 );
               },
             ),
+      );
+    }
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () {
@@ -79,7 +100,5 @@ class HomeScreen extends StatelessWidget {
             child: Icon(Icons.add),
           ),
         );
-      },
-    );
   }
 }

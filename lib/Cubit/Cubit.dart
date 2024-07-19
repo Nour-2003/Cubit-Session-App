@@ -46,7 +46,7 @@ class AppCubit extends Cubit<AppStates> {
   }
 
   void getDataFromDatabase(database)  {
-    emit(LoadingDataState());
+    //emit(LoadingDataState());
     database?.rawQuery('SELECT * FROM tasks').then((value){
       items = value;
       emit(GetDataState());
