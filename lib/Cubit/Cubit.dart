@@ -4,14 +4,12 @@ import 'package:sqflite/sqflite.dart';
 import 'package:untitled5/Cubit/AppStates.dart';
 
 class AppCubit extends Cubit<AppStates> {
-  AppCubit(): super(InitialState());
+  AppCubit():super(InitialState());
+  static AppCubit get(context) => BlocProvider.of(context);
   Database? db;
   List<Map> items = [];
-  static AppCubit get(context) => BlocProvider.of(context);
-
-
   void createDatabase()  {
-     openDatabase(
+    openDatabase(
       'todo.db',
       onCreate: (db, version) {
         print("Database is created");
@@ -35,18 +33,15 @@ class AppCubit extends Cubit<AppStates> {
     });
   }
 
-  void insertToDatabase({required String title, required String description}) async {
-    await db?.transaction((txn) async {
-      try {
-        await txn.rawInsert(
-            'INSERT INTO tasks(title, description) VALUES(?, ?)',
-            [title, description]);
-        emit(InsertToDatabaseState());
-        getDataFromDatabase(db);
-        print('Inserted Successfully');
-      } catch (error) {
-        print('Error inserting into database: $error');
-      }
+  void insertToDatabase({required String title, required String description}) {
+    db?.rawInsert(
+        'INSERT INTO tasks(title, description) VALUES(?, ?)',
+        [title, description]).then((value){
+      print('Inserted Successfully');
+      emit(InsertToDatabaseState());
+      getDataFromDatabase(db);
+    }).catchError((error){
+      print('Error inserting item: $error');
     });
   }
 
@@ -58,14 +53,14 @@ class AppCubit extends Cubit<AppStates> {
     });
   }
 
-   void deleteFromDatabase(int id) async {
-    try {
-      await db?.rawDelete('DELETE FROM tasks WHERE id = ?', [id]);
-      getDataFromDatabase(db);
+  void deleteFromDatabase(int id)  {
+    db?.rawDelete('DELETE FROM tasks WHERE id = ?', [id]).then((value){
       emit(DeleteTaskState());
+      getDataFromDatabase(db);
       print('Deleted Successfully');
-    } catch (error) {
-      print('Error deleting item: $error');
     }
+    ).catchError((error){
+      print("Error deleting item: $error ");
+    });
   }
 }
